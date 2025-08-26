@@ -15,6 +15,23 @@
         </header>
 
         <main>
+            <section class="chart-container">
+                <h2>点数分布グラフ</h2>
+                <canvas id="scoreChart"></canvas>
+            </section>
+
+            <section class="interactive-section">
+                <h2>自分の位置を確認</h2>
+                <form id="score-form">
+                    <input type="number" id="user-score" placeholder="自分の点数を入力" min="200" max="800" required>
+                    <button type="submit">点数を送信して順位を確認</button>
+                </form>
+                <div id="result-display" class="result-container" style="display: none;">
+                    <p id="rank-result"></p>
+                    <p id="percentile-result"></p>
+                </div>
+            </section>
+
             <section class="stats-grid">
                 <div class="stat-card">
                     <h2>平均点</h2>
@@ -37,23 +54,7 @@
                     <p id="min-score">計算中...</p>
                 </div>
             </section>
-
-            <section class="chart-container">
-                <h2>点数分布グラフ</h2>
-                <canvas id="scoreChart"></canvas>
-            </section>
-
-            <section class="interactive-section">
-                <h2>自分の位置を確認</h2>
-                <form id="score-form">
-                    <input type="number" id="user-score" placeholder="自分の点数を入力" min="200" max="800" required>
-                    <button type="submit">点数を送信して順位を確認</button>
-                </form>
-                <div id="result-display" class="result-container" style="display: none;">
-                    <p id="rank-result"></p>
-                    <p id="percentile-result"></p>
-                </div>
-            </section>
+            
         </main>
 
         <footer>
