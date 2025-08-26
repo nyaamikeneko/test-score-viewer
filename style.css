@@ -126,3 +126,25 @@ footer {
     color: #95a5a6;
     font-size: 0.9rem;
 }
+
+/* スマートフォン向けの調整 */
+@media (max-width: 600px) {
+  /* 全体の余白を少し減らす */
+  body {
+    padding: 10px;
+  }
+  .container {
+    padding: 15px;
+  }
+  
+  /* 統計情報カードの文字を少し小さくしてスペースを確保 */
+  .stat-card p {
+    font-size: 1.5rem;
+  }
+
+  /* グラフの上下の余白を減らす */
+  .chart-container {
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+}
