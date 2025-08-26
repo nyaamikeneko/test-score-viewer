@@ -9,30 +9,55 @@ let scoreChart = null;
 const HIGHLIGHT_COLOR = 'rgba(255, 99, 132, 0.8)';
 const BASE_COLOR = 'rgba(54, 162, 235, 0.6)';
 
-// DOMが読み込まれたら実行するメインの処理
+// 【新しいコード①】回答済みのユーザー向けにUIを更新する関数
+function updateUiForAnsweredUser() {
+    const formSection = document.getElementById('score-form');
+    const submitButton = formSection.querySelector('button');
+    const statusMessage = document.createElement('p'); // 新しくメッセージ用の要素を作成
+    
+    const savedScore = localStorage.getItem('submittedScore');
+    statusMessage.innerHTML = `<strong>あなたは回答済みです（送信スコア: ${savedScore}点）。</strong><br>他の点数の順位を確認することもできます。`;
+    
+    formSection.prepend(statusMessage); // フォームの前にメッセージを挿入
+    submitButton.textContent = 'この点数の順位を確認';
+}
+
+// 【新しいコード②】フォームの送信イベントを処理するメインの関数
+function handleFormEvent(event) {
+    event.preventDefault();
+    const scoreInput = document.getElementById('user-score');
+    const userScore = parseInt(scoreInput.value, 10);
+
+    if (isNaN(userScore) || userScore < 200 || userScore > 800) {
+        alert('200から800の間の整数を入力してください。');
+        return;
+    }
+    
+    // 回答済みかどうかで呼び出す関数を切り替える
+    if (localStorage.getItem('submittedScore')) {
+        // 回答済みなら、順位確認だけを行う
+        checkRank(userScore);
+    } else {
+        // 未回答なら、点数を送信する
+        submitScore(userScore);
+    }
+}
+
+// 【新しいコード③】DOMが読み込まれたら実行するメインの処理
 document.addEventListener('DOMContentLoaded', () => {
     // まず、回答済みかどうかをチェックする
-    if (localStorage.getItem('hasAnswered') === 'true') {
-        // もし回答済みなら、フォームを隠して完了メッセージを表示する
-        const formSection = document.getElementById('score-form');
-        const resultDisplay = document.getElementById('result-display');
-        
-        if (formSection) {
-            formSection.innerHTML = '<p><strong>回答済みです。ご協力ありがとうございました。</strong></p>';
-        }
-        if (resultDisplay) {
-            resultDisplay.style.display = 'none';
-        }
-
-    } else {
-        // まだ回答していなければ、フォームの送信イベントを設定する
-        const form = document.getElementById('score-form');
-        if (form) {
-            form.addEventListener('submit', handleFormSubmit);
-        }
+    if (localStorage.getItem('submittedScore')) {
+        // 回答済みなら、UIを回答済み表示に切り替える
+        updateUiForAnsweredUser();
     }
 
-    // 回答済みかどうかにかかわらず、統計データは必ず読み込んで表示する
+    // フォームの送信イベントを設定する
+    const form = document.getElementById('score-form');
+    if (form) {
+        form.addEventListener('submit', handleFormEvent);
+    }
+
+    // 統計データは必ず読み込んで表示する
     fetchDataAndInitialize();
 });
 
@@ -155,71 +180,72 @@ function createOrUpdateChart(highlightIndex = -1) {
 }
 
 
-// フォーム送信時の処理（データ送信機能付き）
-// フォーム送信時の処理（データ送信＋二重回答防止機能付き）
-async function handleFormSubmit(event) {
-    event.preventDefault();
-    const scoreInput = document.getElementById('user-score');
-    const userScore = parseInt(scoreInput.value, 10);
-    const submitButton = document.querySelector('#score-form button');
+// 【新しい関数①】順位確認と結果表示の機能
+function checkRank(userScore) {
+    // 現在のデータセットで順位を計算・表示
+    const tempScoreData = [...scoreData].sort((a, b) => b - a); // 念のためソート
+    const totalCount = tempScoreData.length;
 
-    // バリデーション
-    if (isNaN(userScore) || userScore < 200 || userScore > 800) {
-        alert('200から800の間の整数を入力してください。');
-        return;
+    // 順位を計算
+    const higherScores = tempScoreData.filter(score => score > userScore).length;
+    const rank = higherScores + 1;
+
+    const percentile = (rank / totalCount) * 100;
+    const sameScoreCount = tempScoreData.filter(score => score === userScore).length;
+    
+    let rankText = `${rank}位 / ${totalCount}人中`;
+    if (sameScoreCount > 0) {
+      rankText += ` (同点${sameScoreCount}人)`;
     }
 
+    // 結果を表示
+    document.getElementById('rank-result').textContent = `入力した${userScore}点の順位: ${rankText}`;
+    document.getElementById('percentile-result').textContent = `上位${percentile.toFixed(1)}%に位置します。`;
+    document.getElementById('result-display').style.display = 'block';
+
+    // グラフをハイライト
+    const binSize = 20;
+    const binStart = Math.floor(userScore / binSize) * binSize;
+    const binEnd = binStart + binSize - 1;
+    const targetLabel = `${binStart} - ${binEnd}`;
+    const histogram = createHistogramData();
+    const highlightIndex = histogram.labels.indexOf(targetLabel);
+    createOrUpdateChart(highlightIndex);
+}
+
+// 【新しい関数②】点数送信の機能
+async function submitScore(userScore) {
+    const submitButton = document.querySelector('#score-form button');
     try {
-        // 送信中はボタンを無効化し、テキストを変更
         submitButton.disabled = true;
         submitButton.textContent = '送信中...';
 
-        const response = await fetch(GAS_URL, {
+        // データをGASに送信
+        await fetch(GAS_URL, {
             method: 'POST',
-            mode: 'no-cors', // no-corsモードで送信
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            mode: 'no-cors',
             body: JSON.stringify({ score: userScore }),
         });
         
-        // 送信が成功したら、ブラウザに「回答済み」の記録を残す
-        localStorage.setItem('hasAnswered', 'true');
+        // 送信が成功したら、送信した点数をブラウザに記録
+        localStorage.setItem('submittedScore', userScore);
         
-        // 最新データを取得して統計とグラフを再描画
+        // データを再読み込み
         await fetchDataAndInitialize();
         
-        // 新しいデータセットで自分の順位を計算・表示
-        const tempScoreData = [...scoreData].sort((a, b) => b - a);
-        const totalCount = tempScoreData.length;
-        const rank = tempScoreData.indexOf(userScore) + 1;
-        const percentile = (rank / totalCount) * 100;
-        const sameScoreCount = tempScoreData.filter(score => score === userScore).length;
-        
-        let rankText = `${rank}位 / ${totalCount}人中`;
-        if (sameScoreCount > 1) {
-            rankText += ` (同点${sameScoreCount}人)`;
-        }
+        // UIを「回答済み」の状態に更新
+        updateUiForAnsweredUser();
 
-        document.getElementById('rank-result').textContent = `あなたの順位: ${rankText}`;
-        document.getElementById('percentile-result').textContent = `あなたは上位${percentile.toFixed(1)}%です。`;
-        document.getElementById('result-display').style.display = 'block';
-
-        // グラフをハイライト
-        const binSize = 20;
-        const binStart = Math.floor(userScore / binSize) * binSize;
-        const binEnd = binStart + binSize - 1;
-        const targetLabel = `${binStart} - ${binEnd}`;
-        const histogram = createHistogramData();
-        const highlightIndex = histogram.labels.indexOf(targetLabel);
-        createOrUpdateChart(highlightIndex);
-
-        // フォームを隠して完了メッセージを表示
-        const formSection = document.getElementById('score-form');
-        formSection.innerHTML = '<p><strong>点数を送信しました。ご協力ありがとうございました！</strong></p>';
+        // 自分が送信した点数の順位を表示
+        checkRank(userScore);
 
     } catch (error) {
         console.error('送信エラー:', error);
+        alert('点数の送信に失敗しました。');
+        submitButton.disabled = false;
+        submitButton.textContent = '点数を送信して順位を確認';
+    }
+}
         alert('点数の送信に失敗しました。しばらくしてからもう一度お試しください。');
     } finally {
         // 処理が終わってもボタンは表示されないので、元に戻す処理は不要
