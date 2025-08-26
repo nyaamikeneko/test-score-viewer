@@ -149,21 +149,26 @@ function handleFormSubmit(event) {
         return;
     }
     
-    // 順位を計算 (scoreDataは降順ソート済み)
-    // 自分より点数が高い人の数を数え、1を足すと順位になる
-    const higherScores = scoreData.filter(score => score > userScore).length;
-    const rank = higherScores + 1;
+    // ---- ここからが修正箇所 ----
 
-    // 同点の人も考慮
-    const sameScoreCount = scoreData.filter(score => score === userScore).length;
-    let rankText = `${rank}位 / ${scoreData.length}人中`;
-    if (sameScoreCount > 0) {
-      rankText += ` (同点${sameScoreCount}人)`;
-    }
+    // ユーザーの点数を一時的にデータに加え、降順にソートした新しい配列を作成
+    const tempScoreData = [...scoreData, userScore].sort((a, b) => b - a);
+    const totalCount = tempScoreData.length;
 
+    // 新しい配列内での順位を計算 (indexOfは最初に見つかった要素の添字を返す)
+    // 添字は0から始まるので、+1して順位にする
+    const rank = tempScoreData.indexOf(userScore) + 1;
 
     // 上位パーセントを計算
-    const percentile = (rank / scoreData.length) * 100;
+    const percentile = (rank / totalCount) * 100;
+
+    // 同点の人数を計算 (自分自身も含む)
+    const sameScoreCount = tempScoreData.filter(score => score === userScore).length;
+    let rankText = `${rank}位 / ${totalCount}人中`;
+    // 同点が自分以外にもいる場合のみ追記
+    if (sameScoreCount > 1) {
+      rankText += ` (同点${sameScoreCount}人)`;
+    }
     
     // 結果を表示
     document.getElementById('rank-result').textContent = `あなたの順位: ${rankText}`;
