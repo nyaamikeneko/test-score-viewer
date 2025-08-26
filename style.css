@@ -149,3 +149,15 @@ footer {
     margin-bottom: 20px;
   }
 }
+
+/* 結果表示の強調スタイル */
+.result-container p {
+  font-size: 1.2rem; /* 全体の文字を少し大きく */
+}
+
+.highlight-result {
+  font-size: 1.8rem;   /* 強調部分をさらに大きく */
+  font-weight: bold;   /* 太字にする */
+  color: #d35400;      /* 強調色（オレンジ系）に変更 */
+  margin-left: 8px;    /* 左に少し余白を追加 */
+}
