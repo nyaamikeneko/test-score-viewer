@@ -9,7 +9,18 @@ let scoreChart = null;
 const HIGHLIGHT_COLOR = 'rgba(255, 99, 132, 0.8)';
 const BASE_COLOR = 'rgba(54, 162, 235, 0.6)';
 
-
+// script.js の先頭の方、グローバル変数の下あたりに追加
+document.addEventListener('DOMContentLoaded', () => {
+    // ---- ここから追加 ----
+    // ページ読み込み時に、回答済みかどうかをチェック
+    if (localStorage.getItem('hasAnswered') === 'true') {
+        const formSection = document.getElementById('score-form');
+        const resultDisplay = document.getElementById('result-display');
+        formSection.innerHTML = '<p><strong>回答済みです。ご協力ありがとうございました。</strong></p>';
+        resultDisplay.style.display = 'none'; // 順位表示も隠す
+    }
+    // ---- ここまで追加 ----
+    
 // DOMが読み込まれたら実行
 document.addEventListener('DOMContentLoaded', () => {
     fetchDataAndInitialize();
@@ -164,7 +175,10 @@ async function handleFormSubmit(event) {
         });
         
         // no-corsモードではレスポンスの中身を確認できないため、成功したと仮定して進める
-        
+        // ---- ここから追加 ----
+        // 送信が成功したら、ブラウザに「回答済み」の記録を残す
+        localStorage.setItem('hasAnswered', 'true');
+        // ---- ここまで追加 ----        
         // --- データの再読み込みと表示更新 ---
         
         // 最新データを取得して統計とグラフを再描画
@@ -194,7 +208,11 @@ async function handleFormSubmit(event) {
         const histogram = createHistogramData();
         const highlightIndex = histogram.labels.indexOf(targetLabel);
         createOrUpdateChart(highlightIndex);
-
+        
+        // フォームを隠して完了メッセージを表示
+        const formSection = document.getElementById('score-form');
+        formSection.innerHTML = '<p><strong>点数を送信しました。ご協力ありがとうございました！</strong></p>';
+        // ---- ここまで追加 ----
     } catch (error) {
         console.error('送信エラー:', error);
         alert('点数の送信に失敗しました。しばらくしてからもう一度お試しください。');
