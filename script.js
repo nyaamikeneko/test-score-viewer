@@ -148,35 +148,38 @@ function createHistogramData() {
     };
 }
 
-// グラフを描画または更新する関数
+// グラフを描画または更新する関数（ハイライト更新処理を修正）
 function createOrUpdateChart(highlightIndex = -1) {
     const histogram = createHistogramData();
     const backgroundColors = histogram.labels.map((_, index) => index === highlightIndex ? HIGHLIGHT_COLOR : BASE_COLOR);
 
-    const chartData = {
-        labels: histogram.labels,
-        datasets: [{
-            label: '人数',
-            data: histogram.data,
-            backgroundColor: backgroundColors,
-            borderColor: 'rgba(54, 162, 235, 1)',
-            borderWidth: 1
-        }]
-    };
-
-    const ctx = document.getElementById('scoreChart').getContext('2d');
-
+    // グラフが既に存在するかどうかで処理を分ける
     if (scoreChart) {
-        // 既存のグラフがあれば更新
-        scoreChart.data = chartData;
-        scoreChart.update();
+        // --- 修正箇所 ---
+        // 既存のグラフがあれば、各データを直接更新する
+        scoreChart.data.labels = histogram.labels;
+        scoreChart.data.datasets[0].data = histogram.data;
+        scoreChart.data.datasets[0].backgroundColor = backgroundColors; // 背景色を直接更新
+        scoreChart.update(); // グラフの再描画を指示
+        // --- 修正箇所ここまで ---
     } else {
         // 新規にグラフを作成
+        const chartData = {
+            labels: histogram.labels,
+            datasets: [{
+                label: '人数',
+                data: histogram.data,
+                backgroundColor: backgroundColors,
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        };
+        const ctx = document.getElementById('scoreChart').getContext('2d');
         scoreChart = new Chart(ctx, {
             type: 'bar',
             data: chartData,
             options: {
-                aspectRatio: 1.5, 
+                aspectRatio: 1.5,
                 scales: {
                     y: {
                         beginAtZero: true,
@@ -190,7 +193,7 @@ function createOrUpdateChart(highlightIndex = -1) {
                     legend: { display: false },
                     tooltip: {
                         callbacks: {
-                            title: (tooltipItems) => `${tooltipItems[0].label}点`,
+                            title: (tooltipItems) => `${tooltipItems[0].label}点台`,
                             label: (tooltipItem) => `人数: ${tooltipItem.raw}人`
                         }
                     }
