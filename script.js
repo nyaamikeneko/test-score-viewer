@@ -1,6 +1,6 @@
 // ============== 設定項目 ==============
 // ステップ2でコピーした、あなたのGoogle Apps ScriptのウェブアプリURLをここに貼り付けてください
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbwjLZqT8VwDzVDsfBOLTmUIXGicTAQWlJqa02ff6FW377GdkLIdKDM7zWFhwd3ZxrnQ/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbwp6GIAAnoTMojKWgr7AHZNw5dLdTYG1GLTgsBKVVCMkSHZanVlCS4ieo73SPwVKxW6/exec';
 // =====================================
 
 // グローバル変数
