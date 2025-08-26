@@ -41,6 +41,7 @@ h2 {
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
     gap: 20px;
     text-align: center;
+    margin-top: 40px; /* ← この一行を追加 */
 }
 
 .stat-card {
