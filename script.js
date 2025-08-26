@@ -100,23 +100,37 @@ function displayStatistics() {
     document.getElementById('min-score').textContent = Math.min(...scoreData) + '点';
 }
 
-// ヒストグラムのデータを作成する関数
+// ヒストグラムのデータを作成する関数（動的レンジ版）
 function createHistogramData() {
-    const bins = {};
-    const binSize = 20; // 20点刻みで集計
+    // データが存在しない場合は、空のグラフ情報を返す
+    if (scoreData.length === 0) {
+        return { labels: [], data: [] };
+    }
 
-    for (let i = 200; i <= 800; i += binSize) {
+    const bins = {};
+    const binSize = 20; // 20点刻み
+
+    // 1. データの最小値と最大値を取得
+    const minScore = Math.min(...scoreData);
+    const maxScore = Math.max(...scoreData);
+
+    // 2. グラフの軸の開始点と終了点を計算
+    // (例: 最小値が435なら、キリの良い420から開始する)
+    const axisStart = Math.floor(minScore / binSize) * binSize;
+    
+    // 3. 動的な範囲でループ処理を行い、ビンの器を準備
+    for (let i = axisStart; i <= maxScore; i += binSize) {
         const binStart = i;
-        const binEnd = i + binSize -1;
-        const label = `${binStart} - ${binEnd}`;
+        // ラベルを「440～」のようにシンプルにする
+        const label = `${binStart}～`; 
         bins[label] = 0;
     }
 
+    // 各スコアがどのビンに属するかを数える
     scoreData.forEach(score => {
         const binStart = Math.floor(score / binSize) * binSize;
-        const binEnd = binStart + binSize - 1;
-        const label = `${binStart} - ${binEnd}`;
-        if(bins.hasOwnProperty(label)) {
+        const label = `${binStart}～`;
+        if (bins.hasOwnProperty(label)) {
             bins[label]++;
         }
     });
@@ -126,7 +140,6 @@ function createHistogramData() {
         data: Object.values(bins)
     };
 }
-
 
 // グラフを描画または更新する関数
 function createOrUpdateChart(highlightIndex = -1) {
