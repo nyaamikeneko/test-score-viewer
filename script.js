@@ -35,23 +35,21 @@ async function fetchDataAndInitialize() {
     }
 }
 
-// 統計情報を計算して表示する関数
+// 統計情報を計算して表示する関数（平均点・標準偏差・人数・最大/最小 版）
 function displayStatistics() {
     const count = scoreData.length;
-    if (count === 0) return;
+    if (count === 0) return; // データがなければ何もしない
 
     const sum = scoreData.reduce((acc, score) => acc + score, 0);
     const mean = sum / count;
-    
-    const sorted = [...scoreData].sort((a, b) => a - b);
-    const mid = Math.floor(count / 2);
-    const median = count % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
 
-    const stdDev = Math.sqrt(scoreData.map(x => Math.pow(x - mean, 2)).reduce((a, b) => a + b) / count);
+    // 標準偏差の計算
+    const variance = scoreData.map(x => Math.pow(x - mean, 2)).reduce((a, b) => a + b) / count;
+    const stdDev = Math.sqrt(variance);
 
+    // DOM要素への書き込み
     document.getElementById('mean').textContent = mean.toFixed(1) + '点';
-    document.getElementById('median').textContent = median.toFixed(1) + '点';
-    document.getElementById('std-dev').textContent = stdDev.toFixed(1);
+    document.getElementById('std-dev').textContent = stdDev.toFixed(1); // 標準偏差を表示
     document.getElementById('count').textContent = count + '人';
     document.getElementById('max-score').textContent = Math.max(...scoreData) + '点';
     document.getElementById('min-score').textContent = Math.min(...scoreData) + '点';
