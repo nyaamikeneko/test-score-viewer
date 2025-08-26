@@ -135,52 +135,72 @@ function createOrUpdateChart(highlightIndex = -1) {
 }
 
 
-// フォーム送信時の処理
-function handleFormSubmit(event) {
-    event.preventDefault(); // フォームのデフォルトの送信動作をキャンセル
+// フォーム送信時の処理（データ送信機能付き）
+async function handleFormSubmit(event) {
+    event.preventDefault();
     const scoreInput = document.getElementById('user-score');
     const userScore = parseInt(scoreInput.value, 10);
+    const submitButton = document.querySelector('#score-form button');
 
-    // 入力値のバリデーション
+    // バリデーション
     if (isNaN(userScore) || userScore < 200 || userScore > 800) {
         alert('200から800の間の整数を入力してください。');
         return;
     }
-    
-    // ---- ここからが修正箇所 ----
 
-    // ユーザーの点数を一時的にデータに加え、降順にソートした新しい配列を作成
-    const tempScoreData = [...scoreData, userScore].sort((a, b) => b - a);
-    const totalCount = tempScoreData.length;
+    // --- データ送信処理 ---
+    try {
+        // 送信中はボタンを無効化し、テキストを変更
+        submitButton.disabled = true;
+        submitButton.textContent = '送信中...';
 
-    // 新しい配列内での順位を計算 (indexOfは最初に見つかった要素の添字を返す)
-    // 添字は0から始まるので、+1して順位にする
-    const rank = tempScoreData.indexOf(userScore) + 1;
+        const response = await fetch(GAS_URL, {
+            method: 'POST',
+            mode: 'no-cors', // no-corsモードで送信
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ score: userScore }),
+        });
+        
+        // no-corsモードではレスポンスの中身を確認できないため、成功したと仮定して進める
+        
+        // --- データの再読み込みと表示更新 ---
+        
+        // 最新データを取得して統計とグラフを再描画
+        await fetchDataAndInitialize();
+        
+        // 新しいデータセットで自分の順位を計算・表示
+        const tempScoreData = [...scoreData].sort((a, b) => b - a);
+        const totalCount = tempScoreData.length;
+        const rank = tempScoreData.indexOf(userScore) + 1;
+        const percentile = (rank / totalCount) * 100;
+        const sameScoreCount = tempScoreData.filter(score => score === userScore).length;
+        
+        let rankText = `${rank}位 / ${totalCount}人中`;
+        if (sameScoreCount > 1) {
+            rankText += ` (同点${sameScoreCount}人)`;
+        }
 
-    // 上位パーセントを計算
-    const percentile = (rank / totalCount) * 100;
+        document.getElementById('rank-result').textContent = `あなたの順位: ${rankText}`;
+        document.getElementById('percentile-result').textContent = `あなたは上位${percentile.toFixed(1)}%です。`;
+        document.getElementById('result-display').style.display = 'block';
 
-    // 同点の人数を計算 (自分自身も含む)
-    const sameScoreCount = tempScoreData.filter(score => score === userScore).length;
-    let rankText = `${rank}位 / ${totalCount}人中`;
-    // 同点が自分以外にもいる場合のみ追記
-    if (sameScoreCount > 1) {
-      rankText += ` (同点${sameScoreCount}人)`;
+        // グラフをハイライト
+        const binSize = 20;
+        const binStart = Math.floor(userScore / binSize) * binSize;
+        const binEnd = binStart + binSize - 1;
+        const targetLabel = `${binStart} - ${binEnd}`;
+        const histogram = createHistogramData();
+        const highlightIndex = histogram.labels.indexOf(targetLabel);
+        createOrUpdateChart(highlightIndex);
+
+    } catch (error) {
+        console.error('送信エラー:', error);
+        alert('点数の送信に失敗しました。しばらくしてからもう一度お試しください。');
+    } finally {
+        // 処理が終わったらボタンを元に戻す
+        submitButton.disabled = false;
+        submitButton.textContent = '結果を表示';
     }
-    
-    // 結果を表示
-    document.getElementById('rank-result').textContent = `あなたの順位: ${rankText}`;
-    document.getElementById('percentile-result').textContent = `あなたは上位${percentile.toFixed(1)}%です。`;
-    document.getElementById('result-display').style.display = 'block';
-
-    // グラフをハイライト
-    const binSize = 20;
-    const binStart = Math.floor(userScore / binSize) * binSize;
-    const binEnd = binStart + binSize - 1;
-    const targetLabel = `${binStart} - ${binEnd}`;
-
-    const histogram = createHistogramData();
-    const highlightIndex = histogram.labels.indexOf(targetLabel);
-    
-    createOrUpdateChart(highlightIndex);
 }
