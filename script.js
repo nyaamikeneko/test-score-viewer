@@ -213,8 +213,8 @@ function checkRank(userScore) {
     }
 
     // 結果を表示
-    document.getElementById('rank-result').textContent = `入力した${userScore}点の順位: ${rankText}`;
-    document.getElementById('percentile-result').textContent = `上位${percentile.toFixed(1)}%に位置します。`;
+    document.getElementById('rank-result').innerHTML = `入力した${userScore}点の順位: <span class="highlight-result">${rankText}</span>`;
+    document.getElementById('percentile-result').innerHTML = `上位<span class="highlight-result">${percentile.toFixed(1)}%</span>に位置します。`;
     document.getElementById('result-display').style.display = 'block';
 
     // グラフをハイライト
