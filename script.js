@@ -213,7 +213,6 @@ function checkRank(userScore) {
     createOrUpdateChart(highlightIndex);
 }
 
-// 【新しい関数②】点数送信の機能
 async function submitScore(userScore) {
     const submitButton = document.querySelector('#score-form button');
     try {
@@ -239,15 +238,12 @@ async function submitScore(userScore) {
         // 自分が送信した点数の順位を表示
         checkRank(userScore);
 
-    } catch (error) {
+    } catch (error) { // ← catchブロックの始まり
         console.error('送信エラー:', error);
-        alert('点数の送信に失敗しました。');
+        alert('点数の送信に失敗しました。しばらくしてからもう一度お試しください。');
+        // エラーが起きたらボタンを元に戻す
         submitButton.disabled = false;
         submitButton.textContent = '点数を送信して順位を確認';
-    }
+    } // ← catchブロックの終わり
+    // finallyブロックは今回は不要なので削除しました
 }
-        alert('点数の送信に失敗しました。しばらくしてからもう一度お試しください。');
-    } finally {
-        // 処理が終わってもボタンは表示されないので、元に戻す処理は不要
-    }
-} // ← おそらく、この最後の `}` が不足していたと思われます。
