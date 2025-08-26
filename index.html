@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学年テスト結果分析</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>学年テスト結果分析</h1>
+            <p>自分の点数を入力して、全体の中での位置を確認しよう！</p>
+        </header>
+
+        <main>
+            <section class="stats-grid">
+                <div class="stat-card">
+                    <h2>平均点</h2>
+                    <p id="mean">計算中...</p>
+                </div>
+                <div class="stat-card">
+                    <h2>中央値</h2>
+                    <p id="median">計算中...</p>
+                </div>
+                <div class="stat-card">
+                    <h2>標準偏差</h2>
+                    <p id="std-dev">計算中...</p>
+                </div>
+                <div class="stat-card">
+                    <h2>回答人数</h2>
+                    <p id="count">計算中...</p>
+                </div>
+                <div class="stat-card">
+                    <h2>最高点</h2>
+                    <p id="max-score">計算中...</p>
+                </div>
+                <div class="stat-card">
+                    <h2>最低点</h2>
+                    <p id="min-score">計算中...</p>
+                </div>
+            </section>
+
+            <section class="chart-container">
+                <h2>点数分布グラフ</h2>
+                <canvas id="scoreChart"></canvas>
+            </section>
+
+            <section class="interactive-section">
+                <h2>自分の位置を確認</h2>
+                <form id="score-form">
+                    <input type="number" id="user-score" placeholder="自分の点数を入力 (200-800)" min="200" max="800" required>
+                    <button type="submit">結果を表示</button>
+                </form>
+                <div id="result-display" class="result-container" style="display: none;">
+                    <p id="rank-result"></p>
+                    <p id="percentile-result"></p>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2025 学年テスト分析プロジェクト</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

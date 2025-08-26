@@ -1,0 +1,128 @@
+/* 基本的なスタイルとフォント設定 */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.6;
+    background-color: #f4f7f6;
+    color: #333;
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    background-color: #fff;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+header {
+    text-align: center;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+}
+
+h1 {
+    color: #2c3e50;
+}
+
+h2 {
+    color: #34495e;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 5px;
+    margin-top: 30px;
+}
+
+/* 統計情報グリッド */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 20px;
+    text-align: center;
+}
+
+.stat-card {
+    background-color: #ecf0f1;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.stat-card h2 {
+    font-size: 1rem;
+    margin-top: 0;
+    border: none;
+    color: #7f8c8d;
+}
+
+.stat-card p {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #2980b9;
+    margin: 0;
+}
+
+/* グラフコンテナ */
+.chart-container {
+    margin-top: 40px;
+}
+
+/* インタラクティブセクション */
+.interactive-section {
+    margin-top: 40px;
+    text-align: center;
+}
+
+#score-form {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+#user-score {
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 250px;
+    font-size: 1rem;
+}
+
+#score-form button {
+    padding: 12px 25px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s;
+}
+
+#score-form button:hover {
+    background-color: #2980b9;
+}
+
+.result-container {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #e8f4fd;
+    border-left: 5px solid #3498db;
+    border-radius: 5px;
+    display: inline-block;
+    text-align: left;
+}
+
+.result-container p {
+    margin: 5px 0;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+footer {
+    text-align: center;
+    margin-top: 40px;
+    color: #95a5a6;
+    font-size: 0.9rem;
+}
