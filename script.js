@@ -147,6 +147,7 @@ function createOrUpdateChart(highlightIndex = -1) {
 
 
 // フォーム送信時の処理（データ送信機能付き）
+// フォーム送信時の処理（データ送信＋二重回答防止機能付き）
 async function handleFormSubmit(event) {
     event.preventDefault();
     const scoreInput = document.getElementById('user-score');
@@ -159,7 +160,6 @@ async function handleFormSubmit(event) {
         return;
     }
 
-    // --- データ送信処理 ---
     try {
         // 送信中はボタンを無効化し、テキストを変更
         submitButton.disabled = true;
@@ -174,12 +174,8 @@ async function handleFormSubmit(event) {
             body: JSON.stringify({ score: userScore }),
         });
         
-        // no-corsモードではレスポンスの中身を確認できないため、成功したと仮定して進める
-        // ---- ここから追加 ----
         // 送信が成功したら、ブラウザに「回答済み」の記録を残す
         localStorage.setItem('hasAnswered', 'true');
-        // ---- ここまで追加 ----        
-        // --- データの再読み込みと表示更新 ---
         
         // 最新データを取得して統計とグラフを再描画
         await fetchDataAndInitialize();
@@ -208,17 +204,15 @@ async function handleFormSubmit(event) {
         const histogram = createHistogramData();
         const highlightIndex = histogram.labels.indexOf(targetLabel);
         createOrUpdateChart(highlightIndex);
-        
+
         // フォームを隠して完了メッセージを表示
         const formSection = document.getElementById('score-form');
         formSection.innerHTML = '<p><strong>点数を送信しました。ご協力ありがとうございました！</strong></p>';
-        // ---- ここまで追加 ----
+
     } catch (error) {
         console.error('送信エラー:', error);
         alert('点数の送信に失敗しました。しばらくしてからもう一度お試しください。');
     } finally {
-        // 処理が終わったらボタンを元に戻す
-        submitButton.disabled = false;
-        submitButton.textContent = '結果を表示';
+        // 処理が終わってもボタンは表示されないので、元に戻す処理は不要
     }
-}
+} // ← おそらく、この最後の `}` が不足していたと思われます。
