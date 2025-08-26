@@ -156,6 +156,7 @@ function createOrUpdateChart(highlightIndex = -1) {
             type: 'bar',
             data: chartData,
             options: {
+                aspectRatio: 1.5, 
                 scales: {
                     y: {
                         beginAtZero: true,
