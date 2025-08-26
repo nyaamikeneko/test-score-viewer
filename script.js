@@ -9,22 +9,31 @@ let scoreChart = null;
 const HIGHLIGHT_COLOR = 'rgba(255, 99, 132, 0.8)';
 const BASE_COLOR = 'rgba(54, 162, 235, 0.6)';
 
-// script.js の先頭の方、グローバル変数の下あたりに追加
+// DOMが読み込まれたら実行するメインの処理
 document.addEventListener('DOMContentLoaded', () => {
-    // ---- ここから追加 ----
-    // ページ読み込み時に、回答済みかどうかをチェック
+    // まず、回答済みかどうかをチェックする
     if (localStorage.getItem('hasAnswered') === 'true') {
+        // もし回答済みなら、フォームを隠して完了メッセージを表示する
         const formSection = document.getElementById('score-form');
         const resultDisplay = document.getElementById('result-display');
-        formSection.innerHTML = '<p><strong>回答済みです。ご協力ありがとうございました。</strong></p>';
-        resultDisplay.style.display = 'none'; // 順位表示も隠す
+        
+        if (formSection) {
+            formSection.innerHTML = '<p><strong>回答済みです。ご協力ありがとうございました。</strong></p>';
+        }
+        if (resultDisplay) {
+            resultDisplay.style.display = 'none';
+        }
+
+    } else {
+        // まだ回答していなければ、フォームの送信イベントを設定する
+        const form = document.getElementById('score-form');
+        if (form) {
+            form.addEventListener('submit', handleFormSubmit);
+        }
     }
-    // ---- ここまで追加 ----
-    
-// DOMが読み込まれたら実行
-document.addEventListener('DOMContentLoaded', () => {
+
+    // 回答済みかどうかにかかわらず、統計データは必ず読み込んで表示する
     fetchDataAndInitialize();
-    document.getElementById('score-form').addEventListener('submit', handleFormSubmit);
 });
 
 // データを取得してページを初期化するメイン関数
